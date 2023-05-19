@@ -2,29 +2,20 @@
 pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "./interfaces/IWhitelist.sol";
 
-// TODO : whitelist claimer 
-// TODO : shutdown 시 donate 비율 계산해서 돌려주기
 // TODO : IERC721 아닌 donati NFT interface import
 
 contract Fundraiser {
-    IERC721 public NFT;
 
-    address payable immutable recipient; // 수혜자
-    uint public minimumDonate;
-
-    address payable[] public claimers; // whitelist 누가 추가/삭제권한?
-    address public reporter;
-
-    address[] donators;
-    mapping(address => uint) public donatorFundAmount; // donator - fundAmt
-    mapping(address => uint) public donatorTokenId;
-
-    uint private currentFundAmount; // 굳이 필요한가? 
-    uint private claimCount;
+    struct Recipient { 
+        address recipientAddress;
+        bytes32 name;
+    }
 
     struct Claim {
         address claimer; 
+        address paymentDst; // 거래처(whitelist addr)
         uint amount;
         uint time;
     }
@@ -34,15 +25,31 @@ contract Fundraiser {
         uint time;
     }
 
+    IERC721 public NFT;
+    IWhitelist whitelist;
+    Recipient private recipient;
+
+    uint public minimumDonate;
+
+    address payable[] public claimers;
+    address public reporter;
+
+    address[] donators;
+    mapping(address => uint) public donatorFundAmount; // donator - fundAmt
+    mapping(address => uint) public donatorTokenId;
+
+    uint private currentFundAmount;
+    uint private claimCount;
+
     mapping(uint => Claim) public claimHistory; // claimCount-claimInfo
     mapping(address => Donate[]) public donateHistory; // donator - donateInfo[]
     
     
-    constructor(address _tokenAddress, address _recipient, address _reporter, uint _minimumDonate) payable {
+    constructor(address _tokenAddress, address _recipient, address _whitelist, bytes32 _recipientName, address _reporter, uint _minimumDonate) payable {
         NFT = IERC721(_tokenAddress);
+        whitelist = IWhitelist(_whitelist);
         reporter = _reporter;
-        recipient = payable(_recipient);
-        claimers.push(recipient);
+        recipient = Recipient(payable(_recipient), _recipientName);
         minimumDonate = _minimumDonate;
     }
 
@@ -51,22 +58,23 @@ contract Fundraiser {
         _;
     }
 
-    modifier onlyClaimer {
-        require(_isClaimer(msg.sender), "Fundraiser: Caller must be claimer");
+    modifier onlyWhitelist(address _addr) {
+        bool isWhitelist = whitelist.isWhitelist(_addr);
+        require(whitelist.isWhitelist(_addr), "Fundraiser: Address is not on whitelist");
         _;
     }
 
-    function claim(uint amount) external onlyClaimer { // TODO : 멀티시그 구현 필요
-        require(address(this).balance > amount , "Fundraiser: Overclaimed");
+    function claim(uint _amount, address _whitelistAddr) external onlyWhitelist(_whitelistAddr) {
+        require(address(this).balance > _amount , "Fundraiser: Overclaimed");
         
-        (bool success, ) = msg.sender.call{value: amount}("");
+        (bool success, ) = payable(_whitelistAddr).call{value: _amount}("");
         require(success, "Transfer failed.");
 
-        Claim memory history = Claim(msg.sender, amount, block.timestamp);
+        Claim memory history = Claim(msg.sender, _whitelistAddr, _amount, block.timestamp);
         claimCount += 1;
         claimHistory[claimCount] = history;
 
-        currentFundAmount -= amount;
+        currentFundAmount -= _amount;
     }
 
     function donate() external payable{
