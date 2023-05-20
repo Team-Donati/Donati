@@ -1,10 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.9;
 
-import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "./interfaces/IDonaFT.sol";
 import "./interfaces/IWhitelist.sol";
-
-// TODO : IERC721 아닌 donati NFT interface import
 
 contract Fundraiser {
 
@@ -25,7 +23,7 @@ contract Fundraiser {
         uint time;
     }
 
-    IERC721 public NFT;
+    IDonaFT public NFT;
     IWhitelist whitelist;
     Recipient private recipient;
 
@@ -45,7 +43,7 @@ contract Fundraiser {
     
     
     constructor(address _tokenAddress, address _recipient, address _whitelist, string memory _recipientName, address _reporter, uint _minimumDonate) payable {
-        NFT = IERC721(_tokenAddress);
+        NFT = IDonaFT(_tokenAddress);
         whitelist = IWhitelist(_whitelist);
         reporter = _reporter;
         recipient = Recipient(payable(_recipient), _recipientName);
@@ -79,8 +77,8 @@ contract Fundraiser {
     function donate() external payable{
         require(msg.value > minimumDonate , "Fundraiser : Invalid value");
         if (!_hasToken(msg.sender)) {
-            // NFT mint . 우리 NFT의 인터페이스 필요함
-            // donatorTokenId 등록;
+            uint tokenId = NFT.mint(msg.sender);
+            donatorTokenId[msg.sender] = tokenId;
             donators.push(msg.sender);
         } 
         donatorFundAmount[msg.sender] += msg.value;
