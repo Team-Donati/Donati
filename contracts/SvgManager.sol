@@ -2,23 +2,9 @@
 pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/utils/math/Math.sol";
-import "base64-sol/base64.sol";
 
 library SvgManager {
     using Math for uint256;
-
-    function makeSvgUri(
-        uint256 letterType, 
-        bytes32[5] storage contents, 
-        string storage ownerName
-    ) internal view returns(string memory) {
-        string memory nftImage = Base64.encode(bytes(makeSvg(letterType, contents, ownerName)));
-
-        return string(abi.encodePacked(
-            'data:image/svg+xml;base64,',
-            nftImage
-        ));
-    }
 
     function makeSvg(
         uint256 letterType, 
@@ -39,7 +25,6 @@ library SvgManager {
 
         return string(
             abi.encodePacked(
-                '<?xml version="1.0" encoding="UTF-8"?>',
                 '<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 345 465.66">',
                 '<g id="Layer_1-2" data-name="Layer 1">',
                 '<g>',
@@ -125,12 +110,12 @@ library SvgManager {
         return string(
             abi.encodePacked(
                 '<text transform="translate(24.4 73.66)" style="fill: #24262b; font-family: SFProDisplay-Regular, &apos;SF Pro Display&apos;; font-size: 18px;">',
-                '<tspan x="15" y="0">Dear, My friend.</tspan>',
+                '<tspan x="15" y="0" style="fill: ', color, ';">Dear, My friend.</tspan>',
                 '<tspan x="15" y="64" style="letter-spacing: .02em; fill: ', color, ';">', string(abi.encodePacked(contents[0])),'</tspan>',
                 '<tspan x="15" y="108" style="letter-spacing: .02em; fill: ', color, ';">', string(abi.encodePacked(contents[1])) ,'</tspan>',
                 '<tspan x="15" y="152" style="letter-spacing: .02em; fill: ', color, ';">', string(abi.encodePacked(contents[2])), '</tspan>',
                 '<tspan x="15" y="196" style="letter-spacing: .02em; fill: ', color, ';">', string(abi.encodePacked(contents[3])), '</tspan>',
-                '<<tspan x="15" y="240" style="letter-spacing: .02em; fill: ', color, ';">', string(abi.encodePacked(contents[4])), '</tspan>',
+                '<tspan x="15" y="240" style="letter-spacing: .02em; fill: ', color, ';">', string(abi.encodePacked(contents[4])), '</tspan>',
                 '</text>'
             )
         );

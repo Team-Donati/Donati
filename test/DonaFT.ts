@@ -23,9 +23,30 @@ describe("DonaFT", () => {
             ethers.utils.formatBytes32String("i love you")
         ]);
 
+        await donaFT.updateLetter([
+            ethers.utils.formatBytes32String("hi!!!!"), 
+            ethers.utils.formatBytes32String("i'm!!!!"), 
+            ethers.utils.formatBytes32String("mingyun!!!!"), 
+            ethers.utils.formatBytes32String("thanks a lot!!!!"), 
+            ethers.utils.formatBytes32String("i love you!!!!!")
+        ]);
+
+        await donaFT.updateLetter([
+            ethers.utils.formatBytes32String("hi????"), 
+            ethers.utils.formatBytes32String("i'm????"), 
+            ethers.utils.formatBytes32String("mingyun????"), 
+            ethers.utils.formatBytes32String("thanks a lot????"), 
+            ethers.utils.formatBytes32String("i love you????")
+        ]);
+
         // nft 확인
         console.log(await donaFT.tokenURI(0));
+        console.log("\n");
+        console.log(await donaFT.letterURI(1, 1));
+        console.log("\n");
+        console.log(await donaFT.letterURI(2, 1));
+        console.log("\n");
+        console.log(await donaFT.letterURI(3, 1));
 
-        console.log("ming????");
     })
 })
