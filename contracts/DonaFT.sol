@@ -50,9 +50,10 @@ contract DonaFT is ERC721 {
         _factory = factoryAddr_;
         _letters[0] = [bytes32(""), bytes32(""), bytes32(""), bytes32(""), bytes32("")];
         _letterCnt.increment();
+        _tokenId.increment(); // token id는 1부터 시작
     }
 
-    function setFundraiser(address fundraiser_) external {
+    function setFundraiser(address fundraiser_) external onlyFactory {
         require(fundraiser_ == address(0), "Already set");
         _fundraiser = fundraiser_;
     }
@@ -64,7 +65,7 @@ contract DonaFT is ERC721 {
     }
 
     // tokenId 반환
-    function mint(address ownerAddr) public returns(uint256 tokenId) { //Todo internal, onlyFundraiser 추가하기
+    function mint(address ownerAddr) internal onlyFundraiser returns(uint256 tokenId) { 
         require(_balances[ownerAddr] == 0, "Already minted");
         tokenId = _tokenId.current();
         _mint(ownerAddr, tokenId);
