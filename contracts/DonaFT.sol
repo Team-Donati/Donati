@@ -66,10 +66,11 @@ contract DonaFT is ERC721 {
     }
 
     // tokenId 반환
-    function mint(address ownerAddr) internal onlyFundraiser returns(uint256 tokenId) { 
+    function mint(address ownerAddr) external onlyFundraiser returns(uint256 tokenId) { 
         require(_balances[ownerAddr] == 0, "Already minted");
         tokenId = _tokenId.current();
         _mint(ownerAddr, tokenId);
+        _balances[ownerAddr] = 1;
         _tokenId.increment();
     }
 
