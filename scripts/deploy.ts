@@ -20,16 +20,6 @@ async function main() {
     ethers.utils.parseEther("0.0001"),
     process.env.TRUSTED_FORWARDER_CONTRACT_ADDRESS || "0x52C84043CD9c865236f11d9Fc9F56aa003c1f922"
   );
-
-  // deploy Set 2
-  await deployFundraiseSet(
-    whitelist,
-    factory,
-    process.env.TEST_RECIPIENT2 || "",
-    "Gildong",
-    "Hong",
-    ethers.utils.parseEther("0.0001")
-  );
   
   const fundraisers = await factory.getAllFundraisers()
   const nfts = await factory.getAllNfts()
@@ -37,14 +27,6 @@ async function main() {
   console.log(nfts);
 
   const deployer = await ethers.getSigners();
-
-  // donate1
-  const fundraiser1 = new ethers.Contract(fundraisers[0], fundraiserAbi.abi, deployer[0]);
-  await fundraiser1.connect(deployer[1]).donate({value: ethers.utils.parseEther("0.1")});
-
-  // donate2
-  const fundraiser2 = new ethers.Contract(fundraisers[1], fundraiserAbi.abi, deployer[0]);
-  await fundraiser2.connect(deployer[1]).donate({value: ethers.utils.parseEther("0.1")});
 
   console.log(deployer[0].address, deployer[1].address)
 }
