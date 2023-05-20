@@ -2,12 +2,13 @@
 pragma solidity ^0.8.9;
 
 import "./Fundraiser.sol";
+import "./DonaFT.sol";
 
 contract Factory{
 
     struct FundraiseSet {
         Fundraiser fundraiser;
-        //DonaFT donaFT;
+        DonaFT donaFT;
     }
 
     mapping (address => FundraiseSet) private RecipientFundraiseSet;
@@ -18,14 +19,16 @@ contract Factory{
     function deploySet (
         address _recipient, 
         address _whitelistContract, 
-        bytes32 _recipientName, 
+        string  _recipientFirstName,
+        string _recipientLastName, 
         uint _minimumDonate) external {
-            // deploy contract address
+            
+            DonaFT donaFT = new DonaFT (_recipientFirstName, _recipientLastName, _recipient);
             Fundraiser fundraiser = new Fundraiser (
                 address(donaFT),
                 _recipient, 
                 _whitelistContract,
-                _recipientName,
+                string.concat(_recipientFirstName, _recipientLastName),
                 msg.sender,
                 _minimumDonate
                 );

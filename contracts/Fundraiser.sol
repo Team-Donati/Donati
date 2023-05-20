@@ -10,7 +10,7 @@ contract Fundraiser {
 
     struct Recipient { 
         address recipientAddress;
-        bytes32 name;
+        string name;
     }
 
     struct Claim {
@@ -45,7 +45,7 @@ contract Fundraiser {
     mapping(address => Donate[]) public donateHistory; // donator - donateInfo[]
     
     
-    constructor(address _tokenAddress, address _recipient, address _whitelist, bytes32 _recipientName, address _reporter, uint _minimumDonate) payable {
+    constructor(address _tokenAddress, address _recipient, address _whitelist, string memory _recipientName, address _reporter, uint _minimumDonate) payable {
         NFT = IERC721(_tokenAddress);
         whitelist = IWhitelist(_whitelist);
         reporter = _reporter;
