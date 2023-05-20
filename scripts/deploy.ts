@@ -17,6 +17,9 @@ async function main() {
     process.env.RECIPIENT1_LASTNAME || "",
     ethers.utils.parseEther("0.0001")
   );
+
+  console.log(await factory.getAllFundraisers());
+  console.log(await factory.getAllNfts());
 }
 
 async function deployContracts() {
@@ -25,7 +28,7 @@ async function deployContracts() {
   const factory = await Factory.deploy();
   await factory.deployed();
 
-  console.log("Facotory address", factory.address);
+  console.log("Factory address", factory.address);
 
   //deploy whitelist
   const Whitelist = await ethers.getContractFactory("Whitelist");

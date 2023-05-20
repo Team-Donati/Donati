@@ -54,7 +54,7 @@ contract DonaFT is ERC721 {
     }
 
     function setFundraiser(address fundraiser_) external onlyFactory {
-        require(fundraiser_ == address(0), "Already set");
+        require(_fundraiser == address(0), "Already set");
         _fundraiser = fundraiser_;
     }
 

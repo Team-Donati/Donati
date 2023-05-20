@@ -41,7 +41,9 @@ contract Fundraiser {
     mapping(uint => Claim) private claimHistory; // claimCount-claimInfo
     mapping(address => Donate[]) private donateHistory; // donator - donateInfo[]
     
-    
+    event Claimed(address indexed claimer, address indexed paymentDst, uint amount, uint indexed time);
+    event Donated(address indexed donator, uint amount, uint indexed time);
+
     constructor(address _tokenAddress, address _recipient, address _whitelist, string memory _recipientName, address _reporter, uint _minimumDonate) payable {
         NFT = IDonaFT(_tokenAddress);
         whitelist = IWhitelist(_whitelist);
@@ -72,6 +74,8 @@ contract Fundraiser {
         claimHistory[claimCount] = history;
 
         currentFundAmount -= _amount;
+
+        emit Claimed(msg.sender, _whitelistAddr, _amount, block.timestamp);
     }
 
     function donate() external payable{
@@ -87,6 +91,7 @@ contract Fundraiser {
         Donate memory history = Donate(msg.value, block.timestamp);
         donateHistory[msg.sender].push(history);
         
+        emit Donated(msg.sender, msg.value, block.timestamp);
     }
 
     function setMinimumDonate(uint _minimumDonate) external onlyReporter {
