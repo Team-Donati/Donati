@@ -31,18 +31,17 @@ contract Fundraiser {
 
     uint public minimumDonate;
 
-    address payable[] public claimers;
     address public reporter;
 
     address[] donators;
-    mapping(address => uint) public donatorFundAmount; // donator - fundAmt
-    mapping(address => uint) public donatorTokenId;
+    mapping(address => uint) private donatorFundAmount; // donator - fundAmt
+    mapping(address => uint) private donatorTokenId;
 
     uint private currentFundAmount;
     uint private claimCount;
 
-    mapping(uint => Claim) public claimHistory; // claimCount-claimInfo
-    mapping(address => Donate[]) public donateHistory; // donator - donateInfo[]
+    mapping(uint => Claim) private claimHistory; // claimCount-claimInfo
+    mapping(address => Donate[]) private donateHistory; // donator - donateInfo[]
     
     
     constructor(address _tokenAddress, address _recipient, address _whitelist, string memory _recipientName, address _reporter, uint _minimumDonate) payable {
@@ -95,11 +94,6 @@ contract Fundraiser {
     function setMinimumDonate(uint _minimumDonate) external onlyReporter {
         minimumDonate = _minimumDonate;
     } 
-
-    function getDonatorLastDonatation(address donator) external view returns(Donate memory) {
-        uint length = donateHistory[donator].length;
-        return donateHistory[donator][length-1];
-    }
     
     function getCurrentFundAmount() public view returns(uint) {
         return currentFundAmount;
@@ -121,15 +115,6 @@ contract Fundraiser {
 
     function _hasToken(address addr) private view returns(bool) {
         return donatorTokenId[addr] > 0;
-    }
-
-    function _isClaimer(address addr) private view returns(bool) {
-        for (uint i = 0; i < claimers.length; i++) {
-            if (addr == claimers[i]) {
-                return true;
-            }
-        }
-        return false;
     }
 
 }

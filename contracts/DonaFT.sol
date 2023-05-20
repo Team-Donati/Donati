@@ -7,8 +7,6 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "base64-sol/base64.sol";
 import "./SvgManager.sol";
 
-import "hardhat/console.sol";
-
 contract DonaFT is ERC721 {
     using Strings for uint256;
     using Counters for Counters.Counter;
