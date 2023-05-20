@@ -15,7 +15,8 @@ async function main() {
     process.env.TEST_RECIPIENT1 || "",
     process.env.RECIPIENT1_FISRTNAME || "",
     process.env.RECIPIENT1_LASTNAME || "",
-    ethers.utils.parseEther("0.0001")
+    ethers.utils.parseEther("0.0001"),
+    process.env.TRUSTED_FORWARDER_CONTRACT_ADDRESS || "0x52C84043CD9c865236f11d9Fc9F56aa003c1f922"
   );
 
   console.log(await factory.getAllFundraisers());
@@ -46,7 +47,8 @@ async function deployFundraiseSet(
   recipientAddress: string,
   recipientFisrtName: string,
   recipientLastName: string,
-  minimumDonateValue: BigNumber
+  minimumDonateValue: BigNumber,
+  trustedForwarderAddress: string
 ) {
   await (
     await factory.deploySet(
@@ -54,7 +56,8 @@ async function deployFundraiseSet(
       whitelist.address,
       recipientFisrtName,
       recipientLastName,
-      minimumDonateValue
+      minimumDonateValue,
+      trustedForwarderAddress
     )
   ).wait();
 }

@@ -3,8 +3,9 @@ pragma solidity ^0.8.9;
 
 import "./interfaces/IDonaFT.sol";
 import "./interfaces/IWhitelist.sol";
+import "@opengsn/contracts/src/ERC2771Recipient.sol";
 
-contract Fundraiser {
+contract Fundraiser is ERC2771Recipient {
 
     struct Recipient { 
         address recipientAddress;
@@ -44,16 +45,17 @@ contract Fundraiser {
     event Claimed(address indexed claimer, address indexed paymentDst, uint amount, uint indexed time);
     event Donated(address indexed donator, uint amount, uint indexed time);
 
-    constructor(address _tokenAddress, address _recipient, address _whitelist, string memory _recipientName, address _reporter, uint _minimumDonate) payable {
+    constructor(address _tokenAddress, address _recipient, address _whitelist, string memory _recipientName, address _reporter, uint _minimumDonate, address _forwarder) payable {
         NFT = IDonaFT(_tokenAddress);
         whitelist = IWhitelist(_whitelist);
         reporter = _reporter;
         recipient = Recipient(payable(_recipient), _recipientName);
         minimumDonate = _minimumDonate;
+        _setTrustedForwarder(_forwarder);
     }
 
     modifier onlyReporter {
-        require(msg.sender == reporter, "Fundraiser: Caller must be reporter");
+        require(_msgSender() == reporter, "Fundraiser: Caller must be reporter");
         _;
     }
 
@@ -69,29 +71,29 @@ contract Fundraiser {
         (bool success, ) = payable(_whitelistAddr).call{value: _amount}("");
         require(success, "Transfer failed.");
 
-        Claim memory history = Claim(msg.sender, _whitelistAddr, _amount, block.timestamp);
+        Claim memory history = Claim(_msgSender(), _whitelistAddr, _amount, block.timestamp);
         claimCount += 1;
         claimHistory[claimCount] = history;
 
         currentFundAmount -= _amount;
 
-        emit Claimed(msg.sender, _whitelistAddr, _amount, block.timestamp);
+        emit Claimed(_msgSender(), _whitelistAddr, _amount, block.timestamp);
     }
 
     function donate() external payable{
         require(msg.value > minimumDonate , "Fundraiser : Invalid value");
-        if (!_hasToken(msg.sender)) {
-            uint tokenId = NFT.mint(msg.sender);
-            donatorTokenId[msg.sender] = tokenId;
-            donators.push(msg.sender);
+        if (!_hasToken(_msgSender())) {
+            uint tokenId = NFT.mint(_msgSender());
+            donatorTokenId[_msgSender()] = tokenId;
+            donators.push(_msgSender());
         } 
-        donatorFundAmount[msg.sender] += msg.value;
+        donatorFundAmount[_msgSender()] += msg.value;
         currentFundAmount += msg.value;
 
         Donate memory history = Donate(msg.value, block.timestamp);
-        donateHistory[msg.sender].push(history);
+        donateHistory[_msgSender()].push(history);
         
-        emit Donated(msg.sender, msg.value, block.timestamp);
+        emit Donated(_msgSender(), msg.value, block.timestamp);
     }
 
     function setMinimumDonate(uint _minimumDonate) external onlyReporter {

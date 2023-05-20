@@ -20,7 +20,9 @@ contract Factory{
         address _whitelistContract, 
         string  calldata  _recipientFirstName,
         string calldata _recipientLastName, 
-        uint _minimumDonate) external {
+        uint _minimumDonate,
+        address _forwarder
+        ) external {
             
             DonaFT donaFT = new DonaFT (address(this), _recipientFirstName, _recipientLastName, _recipient);
             
@@ -30,7 +32,8 @@ contract Factory{
                 _whitelistContract,
                 string.concat(_recipientFirstName, _recipientLastName),
                 msg.sender,
-                _minimumDonate
+                _minimumDonate,
+                _forwarder
                 );
             donaFT.setFundraiser(address(fundraiser));
 
