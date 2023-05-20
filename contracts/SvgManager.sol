@@ -2,29 +2,15 @@
 pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/utils/math/Math.sol";
-import "base64-sol/base64.sol";
 
 library SvgManager {
     using Math for uint256;
 
-    function makeSvgUri(
-        uint256 letterType, 
-        string calldata contents, 
-        string calldata ownerName
-    ) internal pure returns(string memory) {
-        string memory nftImage = Base64.encode(bytes(makeSvg(letterType, contents, ownerName)));
-
-        return string(abi.encodePacked(
-            'data:image/svg+xml;base64,',
-            nftImage
-        ));
-    }
-    
     function makeSvg(
         uint256 letterType, 
-        string calldata contents, 
-        string calldata ownerName
-    ) internal pure returns(string memory) {
+        bytes32[5] storage contents, 
+        string storage ownerName
+    ) internal view returns(string memory) {
         string memory color = '#FFFFFF';
 
         if(letterType == 1){
@@ -39,7 +25,6 @@ library SvgManager {
 
         return string(
             abi.encodePacked(
-                '<?xml version="1.0" encoding="UTF-8"?>',
                 '<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 345 465.66">',
                 '<g id="Layer_1-2" data-name="Layer 1">',
                 '<g>',
@@ -55,7 +40,7 @@ library SvgManager {
 
     }
 
-    function _makeName(uint256 letterType, string calldata ownerName) internal pure returns(string memory) {
+    function _makeName(uint256 letterType, string storage ownerName) internal pure returns(string memory) {
         string memory color = '#24262B'; // 이름 색
 
         if(letterType == 1){
@@ -70,8 +55,10 @@ library SvgManager {
 
         return string(
             abi.encodePacked(
-                '<text transform="translate(65.26 441.35)" style="fill: ', color,'; font-family: Poppins-SemiBold, Poppins; font-size: 41px; font-weight: 600; letter-spacing: -.04em;"><tspan x="0" y="0">', 
-                ownerName, 
+                '<text transform="translate(65.26 441.35)" style="fill: ',
+                color,
+                '; font-family: Poppins-SemiBold, Poppins; font-size: 41px; font-weight: 600; letter-spacing: -.04em;"><tspan x="0" y="-18">',
+                ownerName,
                 '</tspan></text>'
             )
         );
@@ -96,19 +83,18 @@ library SvgManager {
 
         return string(
             abi.encodePacked(
-                '<text transform="translate(283.25 401.89)" style="fill: ', color1, '; font-family: Poppins-Regular, Poppins; font-size: 14px;"><tspan x="0" y="0">FROM</tspan></text>', // from 색
-                '<line x1="21.71" y1="82.78" x2="207.88" y2="82.78" style="fill: none; stroke: ', color2, '; stroke-miterlimit: 10;"/>', // 밑줄 색
-                '<line x1="21.71" y1="126.83" x2="321.87" y2="126.83" style="fill: none; stroke: ', color2, '; stroke-miterlimit: 10;"/>', // 밑줄 색
-                '<line x1="21.71" y1="170.88" x2="321.87" y2="170.88" style="fill: none; stroke: ', color2, '; stroke-miterlimit: 10;"/>', // 밑줄 색
-                '<line x1="21.71" y1="214.92" x2="321.87" y2="214.92" style="fill: none; stroke: ', color2, '; stroke-miterlimit: 10;"/>', // 밑줄 색
-                '<line x1="21.71" y1="258.97" x2="321.87" y2="258.97" style="fill: none; stroke: ', color2, '; stroke-miterlimit: 10;"/>', // 밑줄 색
-                '<line x1="21.71" y1="303.01" x2="321.87" y2="303.01" style="fill: none; stroke: ', color2, '; stroke-miterlimit: 10;"/>', // 밑줄 색
-                '<line x1="21.71" y1="347.06" x2="321.87" y2="347.06" style="fill: none; stroke: ', color2, '; stroke-miterlimit: 10;"/>' // 밑줄 색
+                '<text transform="translate(283.25 401.89)" style="fill: ', color1, '; font-family: Poppins-Regular, Poppins; font-size: 14px;"><tspan x="-14" y="-18">FROM</tspan></text>',
+                '<line x1="32.71" y1="82.78" x2="200.88" y2="82.78" style="fill: none; stroke: ', color2, '; stroke-miterlimit: 10;"/>', // 밑줄 색
+                '<line x1="32.71" y1="146.83" x2="310.87" y2="146.83" style="fill: none; stroke: ', color2, '; stroke-miterlimit: 10;"/>', // 밑줄 색
+                '<line x1="32.71" y1="190.88" x2="310.87" y2="190.88" style="fill: none; stroke: ', color2, '; stroke-miterlimit: 10;"/>', // 밑줄 색
+                '<line x1="32.71" y1="234.92" x2="310.87" y2="234.92" style="fill: none; stroke: ', color2, '; stroke-miterlimit: 10;"/>', // 밑줄 색
+                '<line x1="32.71" y1="278.97" x2="310.87" y2="278.97" style="fill: none; stroke: ', color2, '; stroke-miterlimit: 10;"/>', // 밑줄 색
+                '<line x1="32.71" y1="323.01" x2="310.87" y2="323.01" style="fill: none; stroke: ', color2, '; stroke-miterlimit: 10;"/>' // 밑줄 색
             )
         );
     }
 
-    function _makeContents(uint256 letterType, string calldata contents) internal pure returns(string memory) {
+    function _makeContents(uint256 letterType, bytes32[5] storage contents) internal view returns(string memory) {
         string memory color = '#24262B'; // contents 색
 
         if(letterType == 1){
@@ -121,29 +107,15 @@ library SvgManager {
             color = '#5C2E2D';
         }
 
-        uint256 lineCnt = (bytes(contents).length).ceilDiv(35);
-        string[6] memory lines; // 최대 6줄까지 가능
-
-        for (uint i=0; i<6; i++){ // 0 - 5
-            if(lineCnt < i) {
-                lines[i] = "";
-                continue;
-            }
-            uint start = i*36;
-            uint end = Math.min(bytes(contents).length, (i+1)*36);
-            lines[i] = contents[start:end];
-        }
-
         return string(
             abi.encodePacked(
-                '<text transform="translate(22.4 73.66)" style="fill: ', color, '; font-family: SFProDisplay-Regular, &apos;SF Pro Display&apos;; font-size: 18px;">',
-                'Dear, My friend.',
-                '<tspan x="0" y="44" style="letter-spacing: .02em; fill: ', color, ';">', lines[0],'</tspan>',
-                '<tspan x="0" y="88" style="letter-spacing: .02em; fill: ', color, ';">', lines[1] ,'</tspan>',
-                '<tspan x="0" y="132" style="letter-spacing: .02em; fill: ', color, ';">', lines[2], '</tspan>',
-                '<tspan x="0" y="176" style="letter-spacing: .02em; fill: ', color, ';">', lines[3], '</tspan>',
-                '<tspan x="0" y="220" style="letter-spacing: .02em; fill: ', color, ';">', lines[4], '</tspan>',
-                '<tspan x="0" y="264" style="letter-spacing: .02em; fill: ', color, ';">', lines[5], '</tspan>',
+                '<text transform="translate(24.4 73.66)" style="fill: #24262b; font-family: SFProDisplay-Regular, &apos;SF Pro Display&apos;; font-size: 18px;">',
+                '<tspan x="15" y="0" style="fill: ', color, ';">Dear, My friend.</tspan>',
+                '<tspan x="15" y="64" style="letter-spacing: .02em; fill: ', color, ';">', string(abi.encodePacked(contents[0])),'</tspan>',
+                '<tspan x="15" y="108" style="letter-spacing: .02em; fill: ', color, ';">', string(abi.encodePacked(contents[1])) ,'</tspan>',
+                '<tspan x="15" y="152" style="letter-spacing: .02em; fill: ', color, ';">', string(abi.encodePacked(contents[2])), '</tspan>',
+                '<tspan x="15" y="196" style="letter-spacing: .02em; fill: ', color, ';">', string(abi.encodePacked(contents[3])), '</tspan>',
+                '<tspan x="15" y="240" style="letter-spacing: .02em; fill: ', color, ';">', string(abi.encodePacked(contents[4])), '</tspan>',
                 '</text>'
             )
         );
