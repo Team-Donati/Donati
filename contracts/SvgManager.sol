@@ -9,8 +9,8 @@ library SvgManager {
 
     function makeSvgUri(
         uint256 letterType, 
-        string calldata contents, 
-        string calldata ownerName
+        string memory contents, 
+        string memory ownerName
     ) internal pure returns(string memory) {
         string memory nftImage = Base64.encode(bytes(makeSvg(letterType, contents, ownerName)));
 
@@ -19,11 +19,11 @@ library SvgManager {
             nftImage
         ));
     }
-    
+
     function makeSvg(
         uint256 letterType, 
-        string calldata contents, 
-        string calldata ownerName
+        string memory contents, 
+        string memory ownerName
     ) internal pure returns(string memory) {
         string memory color = '#FFFFFF';
 
@@ -55,7 +55,7 @@ library SvgManager {
 
     }
 
-    function _makeName(uint256 letterType, string calldata ownerName) internal pure returns(string memory) {
+    function _makeName(uint256 letterType, string memory ownerName) internal pure returns(string memory) {
         string memory color = '#24262B'; // 이름 색
 
         if(letterType == 1){
@@ -108,7 +108,7 @@ library SvgManager {
         );
     }
 
-    function _makeContents(uint256 letterType, string calldata contents) internal pure returns(string memory) {
+    function _makeContents(uint256 letterType, string memory contents) internal pure returns(string memory) {
         string memory color = '#24262B'; // contents 색
 
         if(letterType == 1){

@@ -63,17 +63,13 @@ contract DonaFT is ERC721 {
     // 항상 모든 토큰이 같은 이미지 출력
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
         _requireMinted(tokenId);
-
-        return "";
+        return SvgManager.makeSvgUri(0, _letters[_letterCnt.current()-1], writer.writerName);
     }
 
     function letterURI(uint256 letterType, uint256 letterId) public view returns (string memory) {
         require(letterId < _letterCnt.current(), "Doesnt exist");
         letterType = letterType % 4; // 편지 타입은 4개뿐
-
-
-
-        return "";
+        return SvgManager.makeSvgUri(letterType, _letters[letterId], writer.writerName);
     }
 
 }
