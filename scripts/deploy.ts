@@ -2,6 +2,8 @@ import { ethers } from "hardhat";
 import { Factory, Whitelist } from "../typechain-types";
 import * as dotenv from "dotenv";
 import { BigNumber } from "ethers";
+import fundraiserAbi from "../artifacts/contracts/Fundraiser.sol/Fundraiser.json";
+import nftAbi from "../artifacts/contracts/DonaFT.sol/DonaFT.json";
 
 dotenv.config();
 
@@ -18,8 +20,32 @@ async function main() {
     ethers.utils.parseEther("0.0001")
   );
 
-  console.log(await factory.getAllFundraisers());
-  console.log(await factory.getAllNfts());
+  // deploy Set 2
+  await deployFundraiseSet(
+    whitelist,
+    factory,
+    process.env.TEST_RECIPIENT2 || "",
+    "Gildong",
+    "Hong",
+    ethers.utils.parseEther("0.0001")
+  );
+  
+  const fundraisers = await factory.getAllFundraisers()
+  const nfts = await factory.getAllNfts()
+  console.log(fundraisers);
+  console.log(nfts);
+
+  const deployer = await ethers.getSigners();
+
+  // donate1
+  const fundraiser1 = new ethers.Contract(fundraisers[0], fundraiserAbi.abi, deployer[0]);
+  await fundraiser1.connect(deployer[1]).donate({value: ethers.utils.parseEther("0.1")});
+
+  // donate2
+  const fundraiser2 = new ethers.Contract(fundraisers[1], fundraiserAbi.abi, deployer[0]);
+  await fundraiser2.connect(deployer[1]).donate({value: ethers.utils.parseEther("0.1")});
+
+  console.log(deployer[0].address, deployer[1].address)
 }
 
 async function deployContracts() {

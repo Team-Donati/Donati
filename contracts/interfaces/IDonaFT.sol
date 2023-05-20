@@ -6,4 +6,5 @@ interface IDonaFT {
     function tokenURI(uint256 tokenId) external view returns (string memory);
     function letterURI(uint256 letterType, uint256 letterId) external view returns (string memory);
     function updateLetter(bytes32[5] calldata contents) external;
+    function balanceOf(address owner) external view returns (uint256 balance);
 }
