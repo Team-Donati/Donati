@@ -14,7 +14,6 @@ contract Factory{
     mapping (address => FundraiseSet) private RecipientFundraiseSet;
     address[] private fundraisers;
     address[] private nfts;
-    
 
     function deploySet (
         address _recipient, 
@@ -23,7 +22,8 @@ contract Factory{
         string calldata _recipientLastName, 
         uint _minimumDonate) external {
             
-            DonaFT donaFT = new DonaFT (_recipientFirstName, _recipientLastName, _recipient);
+            DonaFT donaFT = new DonaFT (address(this), _recipientFirstName, _recipientLastName, _recipient);
+            
             Fundraiser fundraiser = new Fundraiser (
                 address(donaFT),
                 _recipient, 
@@ -32,8 +32,11 @@ contract Factory{
                 msg.sender,
                 _minimumDonate
                 );
+            donaFT.setFundraiser(address(fundraiser));
+
             fundraisers.push(address(fundraiser));
             nfts.push(address(donaFT));
+            
             FundraiseSet memory newSet = FundraiseSet(fundraiser, donaFT);
             RecipientFundraiseSet[_recipient]= newSet;
             

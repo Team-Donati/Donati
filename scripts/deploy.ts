@@ -1,19 +1,59 @@
 import { ethers } from "hardhat";
+import { Factory, Whitelist } from "../typechain-types";
+import * as dotenv from "dotenv";
+import { BigNumber } from "ethers";
+
+dotenv.config();
 
 async function main() {
-  const currentTimestampInSeconds = Math.round(Date.now() / 1000);
-  const unlockTime = currentTimestampInSeconds + 60;
+  const { whitelist, factory } = await deployContracts();
 
-  const lockedAmount = ethers.utils.parseEther("0.001");
-
-  const Lock = await ethers.getContractFactory("Lock");
-  const lock = await Lock.deploy(unlockTime, { value: lockedAmount });
-
-  await lock.deployed();
-
-  console.log(
-    `Lock with ${ethers.utils.formatEther(lockedAmount)}ETH and unlock timestamp ${unlockTime} deployed to ${lock.address}`
+  // deploy Set 1
+  await deployFundraiseSet(
+    whitelist,
+    factory,
+    process.env.TEST_RECIPIENT1 || "",
+    process.env.RECIPIENT1_FISRTNAME || "",
+    process.env.RECIPIENT1_LASTNAME || "",
+    ethers.utils.parseEther("0.0001")
   );
+}
+
+async function deployContracts() {
+  //deploy factory
+  const Factory = await ethers.getContractFactory("Factory");
+  const factory = await Factory.deploy();
+  await factory.deployed();
+
+  console.log("Facotory address", factory.address);
+
+  //deploy whitelist
+  const Whitelist = await ethers.getContractFactory("Whitelist");
+  const whitelist = await Whitelist.deploy();
+  await whitelist.deployed();
+
+  console.log("Whitelist address", whitelist.address);
+
+  return { whitelist, factory };
+}
+
+async function deployFundraiseSet(
+  whitelist: Whitelist,
+  factory: Factory,
+  recipientAddress: string,
+  recipientFisrtName: string,
+  recipientLastName: string,
+  minimumDonateValue: BigNumber
+) {
+  await (
+    await factory.deploySet(
+      recipientAddress,
+      whitelist.address,
+      recipientFisrtName,
+      recipientLastName,
+      minimumDonateValue
+    )
+  ).wait();
 }
 
 // We recommend this pattern to be able to use async/await everywhere

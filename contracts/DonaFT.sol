@@ -10,6 +10,9 @@ import "./SvgManager.sol";
 contract DonaFT is ERC721 {
     using Strings for uint256;
     using Counters for Counters.Counter;
+
+    //Factory
+    address private _factory;
     
     // 편지 history
     mapping(uint256 => string) private _letters;
@@ -36,9 +39,15 @@ contract DonaFT is ERC721 {
         _;
     }
 
-    constructor(string memory firstName_, string memory lastName_, address writerAddr_) 
+    modifier onlyFactory() {
+        require(msg.sender == _factory, "Only factory"); 
+        _;
+    }
+
+    constructor(address factoryAddr_ , string memory firstName_, string memory lastName_, address writerAddr_) 
     ERC721(string(abi.encodePacked("Letter from ", firstName_)), lastName_) { // symbol_은 유저 name의 축어
         writer = Writer(writerAddr_, string(abi.encodePacked(firstName_, " ", lastName_)));
+        _factory = factoryAddr_;
     }
 
     function setFundraiser(address fundraiser_) external {
