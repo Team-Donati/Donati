@@ -19,8 +19,8 @@ contract Factory{
     function deploySet (
         address _recipient, 
         address _whitelistContract, 
-        string  _recipientFirstName,
-        string _recipientLastName, 
+        string  calldata  _recipientFirstName,
+        string calldata _recipientLastName, 
         uint _minimumDonate) external {
             
             DonaFT donaFT = new DonaFT (_recipientFirstName, _recipientLastName, _recipient);
@@ -34,7 +34,7 @@ contract Factory{
                 );
             fundraisers.push(address(fundraiser));
             nfts.push(address(donaFT));
-            FundraiseSet newSet = new FundraiseSet(fundraiser, donaFT);
+            FundraiseSet memory newSet = FundraiseSet(fundraiser, donaFT);
             RecipientFundraiseSet[_recipient]= newSet;
             
     }
