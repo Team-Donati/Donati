@@ -126,11 +126,11 @@ library SvgManager {
             abi.encodePacked(
                 '<text transform="translate(24.4 73.66)" style="fill: #24262b; font-family: SFProDisplay-Regular, &apos;SF Pro Display&apos;; font-size: 18px;">',
                 '<tspan x="15" y="0">Dear, My friend.</tspan>',
-                '<tspan x="15" y="64" style="letter-spacing: .02em; fill: ', color, ';">', contents[0],'</tspan>',
-                '<tspan x="15" y="108" style="letter-spacing: .02em; fill: ', color, ';">', contents[1] ,'</tspan>',
-                '<tspan x="15" y="152" style="letter-spacing: .02em; fill: ', color, ';">', contents[2], '</tspan>',
-                '<tspan x="15" y="196" style="letter-spacing: .02em; fill: ', color, ';">', contents[3], '</tspan>',
-                '<<tspan x="15" y="240" style="letter-spacing: .02em; fill: ', color, ';">', contents[4], '</tspan>',
+                '<tspan x="15" y="64" style="letter-spacing: .02em; fill: ', color, ';">', string(abi.encodePacked(contents[0])),'</tspan>',
+                '<tspan x="15" y="108" style="letter-spacing: .02em; fill: ', color, ';">', string(abi.encodePacked(contents[1])) ,'</tspan>',
+                '<tspan x="15" y="152" style="letter-spacing: .02em; fill: ', color, ';">', string(abi.encodePacked(contents[2])), '</tspan>',
+                '<tspan x="15" y="196" style="letter-spacing: .02em; fill: ', color, ';">', string(abi.encodePacked(contents[3])), '</tspan>',
+                '<<tspan x="15" y="240" style="letter-spacing: .02em; fill: ', color, ';">', string(abi.encodePacked(contents[4])), '</tspan>',
                 '</text>'
             )
         );

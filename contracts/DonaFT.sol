@@ -7,6 +7,8 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "base64-sol/base64.sol";
 import "./SvgManager.sol";
 
+import "hardhat/console.sol";
+
 contract DonaFT is ERC721 {
     using Strings for uint256;
     using Counters for Counters.Counter;
@@ -64,13 +66,15 @@ contract DonaFT is ERC721 {
 
     // 항상 모든 토큰이 같은 이미지 출력
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
+        console.log("ming");
         _requireMinted(tokenId);
-        return SvgManager.makeSvgUri(0, _letters[_letterCnt.current()-1], writer.writerName);
+        // console.log(_letters[_letterCnt.current()-1]);
+        return SvgManager.makeSvg(0, _letters[_letterCnt.current()-1], writer.writerName);
     }
 
     function letterURI(uint256 letterType, uint256 letterId) public view returns (string memory) {
         require(letterId < _letterCnt.current(), "Doesnt exist");
         letterType = letterType % 4; // 편지 타입은 4개뿐
-        return SvgManager.makeSvgUri(letterType, _letters[letterId], writer.writerName);
+        return SvgManager.makeSvg(letterType, _letters[letterId], writer.writerName);
     }
 }
